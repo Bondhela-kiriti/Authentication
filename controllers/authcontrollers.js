@@ -32,7 +32,7 @@ const register = async(req,res)=>{
     })
     await newUser.save()
     const token = jwt.sign({id:newUser._id},"hjghgfftddrsrs",{expiresIn:"1h"})
-    res.status(201).json({message:"User created successfully"})
+    res.status(201).json({message:"User created successfully",token})
     res.cookie("token",token,{httpOnly:true})
   }
     
@@ -42,7 +42,7 @@ const register = async(req,res)=>{
   }
   
   
-
+}
 
   
 
@@ -56,19 +56,31 @@ const userLogin =async(req,res)=>{
     if(!user){
       return res.status(400).json({message:"User does not exist"})
     }
+    
     const isMatch = await bcrypt.compare(password,user.password)
     if(!isMatch){
-      return res.status(400).json({message:"Invalid credentials"})
+      return res.status(400).json({message:"Invalid password"})
     }
     const token = jwt.sign({id:user._id},"hjghgfftddrsrs",{expiresIn:"1h"})
-    res.status(200).json({message:"User logged in successfully"})
-    res.cookie("token",token,{httpOnly:true})
+    res.status(200).json({message:"User logged in successfully",token})
+    
+    
+    
   }
   catch(err){
     res.status(500).json({message:"Something went wrong"})
+    console.log(err)
   }
-  res.status(200).json({message:"User logged in successfully"})
-}
-  
 
-module.exports = {register,userLogin}
+  
+}
+
+const logout =async(req,res)=>{
+  res.clearCookie("token")
+  res.status(200).json({message:"User logged out successfully"})
+}
+
+
+
+
+module.exports = {register,userLogin,logout}
